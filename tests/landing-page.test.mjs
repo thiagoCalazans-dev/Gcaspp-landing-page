@@ -87,3 +87,30 @@ test("a navegação móvel alcança as seções sem rolagem lateral", async () =
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   await page.close();
 });
+
+test("a página carrega CSS, script e imagens sob a subpasta do GitHub Pages", async () => {
+  const context = await browser.newContext();
+  const prefix = "/Gcaspp-landing-page/";
+  await context.route("http://pages.test/**", async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (!pathname.startsWith(prefix)) {
+      await route.fulfill({ status: 404, body: "Outside project path" });
+      return;
+    }
+    const upstream = await context.request.get(new URL(pathname.slice(prefix.length), `${baseUrl}/`).toString());
+    await route.fulfill({ response: upstream });
+  });
+
+  const page = await context.newPage();
+  const failures = [];
+  page.on("response", (response) => {
+    if (response.status() >= 400) failures.push(response.url());
+  });
+  await page.goto(`http://pages.test${prefix}`);
+  await page.evaluate(() => document.fonts.ready);
+  assert.deepEqual(failures, []);
+  assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(247, 248, 245)");
+  assert.equal(await page.locator(".image-band img").evaluate((image) => image.complete && image.naturalWidth > 0), true);
+  assert.equal(await page.locator("#year").textContent(), String(new Date().getFullYear()));
+  await context.close();
+});

@@ -15,6 +15,10 @@ npm run dev
 
 A página fica disponível em `http://127.0.0.1:4173`. É estática; para publicar, basta servir os arquivos do repositório como raiz do site.
 
+## Prévia no GitHub Pages
+
+Em **Settings → Pages → Build and deployment**, escolha **Deploy from a branch**, a branch `codex/1-landing-page-institucional` e a pasta `/(root)`. A prévia ficará em `https://thiagocalazans-dev.github.io/Gcaspp-landing-page/`. A branch do PR continua aberta para revisão. Depois de aprovar e mesclar o PR, altere a origem do Pages para `main` e `/(root)`.
+
 ## Verificação
 
 ```sh
